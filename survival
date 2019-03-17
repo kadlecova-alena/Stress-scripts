@@ -1,0 +1,65 @@
+import sys
+import numpy
+import math
+from scipy.stats import chi2_contingency
+
+MIN_LENGTH = 800
+ALIVE_THRESHOLD = 5
+MAX_POSITION = 3200
+
+
+for line in sys.stdin:
+    if line.startswith('=============================>Worm_Bkgd_GreenHead<============================='):
+        break
+next(sys.stdin)
+next(sys.stdin)
+
+all = numpy.zeros((8,12))
+alive = numpy.zeros((8,12))
+for line in sys.stdin:
+    section, id, __ , ___, ____, intensity, length, _____, X, Y, ______ = line.strip().split(',')
+    row, column = section.split(' - ')
+    row = ord(row) - 65
+    column = int(column) - 1
+    id = int(id)
+    intensity = float(intensity)
+    length = float(length)
+    X = float(X)
+    Y = float(Y)
+    position = math.sqrt((3637.1278 - X)**2 + (3924.8123 - Y)**2)    
+    if length < MIN_LENGTH:
+        continue
+    if position > MAX_POSITION:
+        continue
+    all[row][column] += 1
+    if intensity < ALIVE_THRESHOLD:
+        alive[row][column] += 1
+cols_all = numpy.sum(all, 0)
+cols_alive = numpy.sum(alive, 0)
+
+def pvalue(alive1, all1, alive2, all2):
+    dead1 = all1 - alive1
+    dead2 = all2 - alive2
+    return chi2_contingency([[dead1, alive1], [dead2, alive2]])[1]
+
+for row in all:
+    strings = map(str, map(int, row))
+    print ','.join(strings)
+print ''
+
+for row in alive:
+    strings = map(str, map(int, row))
+    print ','.join(strings)
+print ''
+
+strings = map(str, map(int, cols_all))
+print ','.join(strings)
+
+strings = map(str, map(int, cols_alive))
+print ','.join(strings)
+print ''
+
+for col in range(11):
+    p = pvalue(cols_alive[col], cols_all[col], cols_alive[11], cols_all[11])
+    print p
+    
