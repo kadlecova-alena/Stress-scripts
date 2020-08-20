@@ -5,21 +5,20 @@ def pvalue(alive1, all1, alive2, all2):
     dead2 = all2 - alive2
     return chi2_contingency([[dead1, alive1], [dead2, alive2]])[1]
 
+TOTAL_NUM = 24
+
 ALIVE_STR = """
-
-
 """
+
 ALL_STR = """
-
-
-
 """
 
+alive = map(int, ALIVE_STR.strip().split())
+assert len(alive) == TOTAL_NUM
+all = map(int, ALL_STR.strip().split())
+assert len(all) == TOTAL_NUM
+alive_control = alive[-1]
+all_control = all[-1]
 
-alive = map(int, ALIVE_STR.split())
-all = map(int, ALL_STR.split())
-alive_control = alive[11]
-all_control = all[11]
-
-for i in xrange(11):
-    print pvalue(alive[i], all[i], alive_control, all_control)
+for i in xrange(TOTAL_NUM - 1):
+    print(pvalue(alive[i], all[i], alive_control, all_control))
